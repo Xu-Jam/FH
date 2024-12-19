@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>编号和数量生成器</title>
+    <style>
+        .container {
+            display: flex;
+            justify-content: flex-start;
+            margin: 20px;
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            margin: 10px;
+        }
+        textarea {
+            width: 250px;
+            height: 600px;
+            font-size: 18px; 
+            font-family: Times New Roman, Times, serif;
+            background-color: #f2f2f2;  /* 配置为浅灰色 */
+        }
+        label {
+            margin-bottom: 5px;
+        }
+        #button-group {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px;
+        }
+    </style>
+    <script>
+        let storedData = {
+            input: '',
+            output: ''
+        };
+
+        function generate() {
+            const inputTextArea = document.getElementById('input');
+            const outputTextArea = document.getElementById('output');
+            const lines = inputTextArea.value.trim().split('\n');
+            
+            let output = '';
+            for (let i = 0; i < lines.length; i++) {
+                // 使用 '\t' 制表符来分割每一行的数据
+                const splits = lines[i].trim().split('\t');
+                if (splits.length === 2) {
+                    const code = splits[0];
+                    const count = parseInt(splits[1]);
+                    if (count === 1) {
+                        output += code + '\n';
+                    } else {
+                        for (let j = 1; j <= count; j++) {
+                            output += code + '-' + j + '\n';
+                        }
+                    }
+                } else {
+                    alert('请按正确格式输入');
+                    return;
+                }
+            }
+            outputTextArea.value = output.trim();
+            storedData = {
+                input: inputTextArea.value,
+                output: outputTextArea.value.trim()
+            };
+        }
+
+        function clearAll() {
+            document.getElementById('input').value = '';
+            document.getElementById('output').value = '';
+        }
+
+        function recover() {
+            document.getElementById('input').value = storedData.input;
+            document.getElementById('output').value = storedData.output;
+        }
+
+        function copy() {
+            const outputTextArea = document.getElementById('output');
+            outputTextArea.select();
+            document.execCommand('copy');
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="input-group">
+            <label for="input">请输入田间编号及对应单株数量：</label>
+            <textarea id="input" rows="5"></textarea>
+        </div>
+        <div class="input-group">
+            <label for="output">输出结果：</label>
+            <textarea id="output" rows="10" readonly></textarea>
+        </div>
+    </div>
+    <div id="button-group">
+         <button onclick="generate()"style="position: fixed; top: 160px;left: 600px; font-family: 黑体; font-weight:bold; font-size: 18px; padding: 10px 80px; border-radius: 5px; background-color: #000080; color: #ffffff; border: none;">生成编号</button>
+        <button onclick="copy()"style="position: fixed; top: 280px;left: 600px; font-family: 黑体; font-weight:bold; font-size: 18px; padding: 10px 80px; border-radius: 5px; background-color: #FF4500; color: #ffffff; border: none;">复制结果</button>
+        <button onclick="clearAll()"style="position: fixed; top: 400px;left: 600px; font-family: 黑体; font-weight:bold; font-size: 18px; padding: 10px 80px; border-radius: 5px; background-color: #8B0000; color: #ffffff; border: none;">清除内容</button>
+        <button onclick="recover()"style="position: fixed; top: 520px;left: 600px; font-family: 黑体; font-weight:bold; font-size: 18px; padding: 10px 80px; border-radius: 5px; background-color: #006400; color: #ffffff; border: none;">恢复内容</button>
+    </div>
+</body>
+</html>
