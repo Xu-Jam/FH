@@ -27,8 +27,27 @@
         }
         #button-group {
             display: flex;
+            flex-direction: column;
             justify-content: space-between;
             margin: 20px;
+        }
+        #sample-table {
+            margin-left: 300px;
+            margin-top: 20px;
+        }
+        #sample-table table {
+            border-collapse: collapse;
+            width: 300px;
+            font-family: Arial, sans-serif;
+        }
+        #sample-table th, #sample-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        #sample-table th {
+            background-color: #f2f2f2;
+            font-weight: bold;
         }
     </style>
     <script>
@@ -95,12 +114,29 @@
             <label for="output">输出结果：</label>
             <textarea id="output" rows="10" readonly></textarea>
         </div>
-    </div>
-    <div id="button-group">
-         <button onclick="generate()"style="position: fixed; top: 160px;left: 600px; font-family: 黑体; font-weight:bold; font-size: 18px; padding: 10px 80px; border-radius: 5px; background-color: #000080; color: #ffffff; border: none;">生成编号</button>
+        <div id="button-group">
+            <button onclick="generate()"style="position: fixed; top: 160px;left: 600px; font-family: 黑体; font-weight:bold; font-size: 18px; padding: 10px 80px; border-radius: 5px; background-color: #000080; color: #ffffff; border: none;">生成编号</button>
         <button onclick="copy()"style="position: fixed; top: 280px;left: 600px; font-family: 黑体; font-weight:bold; font-size: 18px; padding: 10px 80px; border-radius: 5px; background-color: #FF4500; color: #ffffff; border: none;">复制结果</button>
         <button onclick="clearAll()"style="position: fixed; top: 400px;left: 600px; font-family: 黑体; font-weight:bold; font-size: 18px; padding: 10px 80px; border-radius: 5px; background-color: #8B0000; color: #ffffff; border: none;">清除内容</button>
         <button onclick="recover()"style="position: fixed; top: 520px;left: 600px; font-family: 黑体; font-weight:bold; font-size: 18px; padding: 10px 80px; border-radius: 5px; background-color: #006400; color: #ffffff; border: none;">恢复内容</button>
+        </div>
+        <div id="sample-table">
+            <table>
+                         输入内容示例
+                <tr>
+                    <th>2024年编号</th>
+                    <th>数量</th>
+                </tr>
+                <tr><td>GY0001</td><td>3</td></tr>
+                <tr><td>GY0002</td><td>4</td></tr>
+                <tr><td>GY0003</td><td>5</td></tr>
+                <tr><td>GY0004</td><td>6</td></tr>
+                <tr><td>GY0005</td><td>3</td></tr>
+                <tr><td>GY0006</td><td>3</td></tr>
+                <tr><td>GY0007</td><td>5</td></tr>
+                <tr><td>GY0008</td><td>34</td></tr>
+            </table>
+        </div>
     </div>
 </body>
 </html>
