@@ -1,142 +1,313 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>单株编号生成器</title>
     <style>
-        .container {
-            display: flex;
-            justify-content: flex-start;
-            margin: 20px;
+        body { 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            padding: 25px; 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            background: #f5f6fa; 
         }
-        .input-group {
+        h2 { 
+            color: #2c3e50; 
+            border-bottom: 3px solid #3498db; 
+            padding-bottom: 12px; 
+            margin-bottom: 25px; 
+            text-align: center;
+        }
+        .container { 
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 40px;
+            align-items: start;
+        }
+        .input-group, .output-group {
             display: flex;
             flex-direction: column;
-            margin: 10px;
-        }
-        textarea {
-            width: 250px;
-            height: 600px;
-            font-size: 18px; 
-            font-family: Times New Roman, Times, serif;
-            background-color: #f2f2f2;  /* 配置为浅灰色 */
         }
         label {
-            margin-bottom: 5px;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+            color: #34495e;
         }
-        #button-group {
+        .input-container {
+            position: relative;
+            width: 100%;
+        }
+        textarea { 
+            width: 100%; 
+            height: 450px; 
+            padding: 18px; 
+            border: 2px solid #dcdde1; 
+            border-radius: 8px;
+            font-family: 'Fira Code', Consolas, monospace;
+            font-size: 14px;
+            transition: border-color 0.3s;
+            resize: vertical;
+            background-color: #fff;
+            box-sizing: border-box;
+        }
+        textarea:focus { border-color: #3498db; outline: none; }
+        .button-group {
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
-            margin: 20px;
+            gap: 20px;
+            padding-top: 60px;
         }
+        button {
+            height: 50px;
+            padding: 0 30px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        button:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+        button:active { transform: translateY(1px); }
         #sample-table {
-            margin-left: 300px;
-            margin-top: 20px;
+            margin-top: 40px;
         }
         #sample-table table {
             border-collapse: collapse;
-            width: 300px;
+            width: 100%;
             font-family: Arial, sans-serif;
         }
         #sample-table th, #sample-table td {
             border: 1px solid #ddd;
-            padding: 8px;
+            padding: 12px;
             text-align: center;
         }
         #sample-table th {
-            background-color: #f2f2f2;
+            background-color: #3498db;
+            color: #fff;
             font-weight: bold;
         }
+        #sample-table caption {
+            margin-bottom: 10px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        /* Custom placeholder styling */
+        .example-text {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 450px;
+            padding: 18px;
+            box-sizing: border-box;
+            font-family: 'Fira Code', Consolas, monospace;
+            font-size: 14px;
+            color: #777;
+            pointer-events: none; /* Makes it non-selectable */
+            white-space: pre-wrap;
+            display: none; /* Hidden by default, shown when textarea is empty */
+            background: transparent;
+            z-index: 10;
+        }
+        /* Responsive Design */
+        @media (max-width: 1000px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            .button-group {
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+                padding-top: 20px;
+            }
+            button {
+                width: 100%;
+                max-width: 200px;
+            }
+            #sample-table {
+                margin-left: 0;
+            }
+        }
     </style>
-    <script>
-        let storedData = {
-            input: '',
-            output: ''
-        };
+</head>
+<body>
+    <h2>单株编号生成器</h2>
+    <div class="container">
+        <!-- 输入区域 -->
+        <div class="input-group">
+            <label for="input">请输入田间编号及对应单株数量（格式：编号\t数量）：</label>
+            <div class="input-container">
+                <textarea id="input"></textarea>
+                <div id="example-overlay" class="example-text">编号	数量
+GY0001	3
+GY0002	4
+GY0003	5
+GY0004	6
+GY0005	3
+GY0006	3
+GY0007	5
+GY0008	34</div>
+            </div>
+        </div>
 
+        <!-- 按钮区域 -->
+        <div class="button-group">
+            <button onclick="generate()" title="生成单株编号">
+                🔄 生成编号
+            </button>
+            <button onclick="copyOutput()" title="复制输出内容">
+                📋 复制结果
+            </button>
+            <button onclick="clearAll()" title="清除所有内容">
+                🧹 清除内容
+            </button>
+            <button onclick="recover()" title="恢复上次输入">
+                🔙 恢复内容
+            </button>
+        </div>
+
+        <!-- 输出区域 -->
+        <div class="output-group">
+            <label for="output">输出结果：</label>
+            <textarea id="output" readonly></textarea>
+        </div>
+    </div>
+
+    <script>
+        const EXAMPLE_INPUT = `编号\t数量
+GY0001\t3
+GY0002\t4
+GY0003\t5
+GY0004\t6
+GY0005\t3
+GY0006\t3
+GY0007\t5
+GY0008\t34`;
+    
+        let historyStack = [];
+        const MAX_HISTORY = 5;
+        
+        // Handle custom placeholder visibility
+        const inputElement = document.getElementById('input');
+        const exampleOverlay = document.getElementById('example-overlay');
+        
+        // Check on page load
+        window.onload = function() {
+            updateExampleVisibility();
+        }
+        
+        // Update the placeholder visibility based on input content
+        function updateExampleVisibility() {
+            if (inputElement.value.trim() === '') {
+                exampleOverlay.style.display = 'block';
+            } else {
+                exampleOverlay.style.display = 'none';
+            }
+        }
+        
+        // Event listeners for input changes
+        inputElement.addEventListener('input', updateExampleVisibility);
+        inputElement.addEventListener('focus', function() {
+            // Hide example when focused even if empty
+            exampleOverlay.style.display = 'none';
+        });
+        
+        inputElement.addEventListener('blur', updateExampleVisibility);
+    
         function generate() {
-            const inputTextArea = document.getElementById('input');
-            const outputTextArea = document.getElementById('output');
-            const lines = inputTextArea.value.trim().split('\n');
-            
-            let output = '';
-            for (let i = 0; i < lines.length; i++) {
-                // 使用 '\t' 制表符来分割每一行的数据
-                const splits = lines[i].trim().split('\t');
+            let inputText = inputElement.value.trim();
+    
+            if (!inputText) {
+                inputText = EXAMPLE_INPUT;
+                inputElement.value = inputText; // Fill in the actual textarea
+                updateExampleVisibility(); // Update overlay visibility
+                alert('使用示例数据生成编号。');
+            }
+    
+            saveToHistory(inputText);
+    
+            const lines = inputText.split('\n')
+                .map(line => line.trim())
+                .filter(line => line); // 保留所有非空行
+    
+            if (lines.length < 2) {
+                alert('请输入至少包含表头和一行数据的内容。');
+                return;
+            }
+    
+            const dataLines = lines.slice(1); // 跳过表头
+    
+            let output = '单株编号\n'; // 添加表头
+    
+            for (let i = 0; i < dataLines.length; i++) {
+                const splits = dataLines[i].split('\t');
                 if (splits.length === 2) {
-                    const code = splits[0];
-                    const count = parseInt(splits[1]);
+                    const code = splits[0].trim();
+                    const count = parseInt(splits[1].trim());
+                    if (isNaN(count) || count < 1) {
+                        alert(`第 ${i+2} 行的数量无效，请输入正整数。`); // i+2 因为跳过了表头
+                        return;
+                    }
                     if (count === 1) {
-                        output += code + '\n';
+                        output += `${code}\n`;
                     } else {
                         for (let j = 1; j <= count; j++) {
-                            output += code + '-' + j + '\n';
+                            output += `${code}-${j}\n`;
                         }
                     }
                 } else {
-                    alert('请按正确格式输入');
+                    alert(`第 ${i+2} 行格式不正确，请使用 "编号\t数量" 格式。`); // i+2 因为跳过了表头
                     return;
                 }
             }
-            outputTextArea.value = output.trim();
-            storedData = {
-                input: inputTextArea.value,
-                output: outputTextArea.value.trim()
-            };
+    
+            document.getElementById('output').value = output.trim();
         }
-
+    
+        function saveToHistory(content) {
+            historyStack.unshift(content);
+            if (historyStack.length > MAX_HISTORY) historyStack.pop();
+        }
+    
+        function copyOutput() {
+            const output = document.getElementById('output');
+            output.select();
+            try {
+                document.execCommand('copy');
+                alert('内容已复制到剪贴板！');
+            } catch (err) {
+                alert('自动复制失败，请手动选择文本复制');
+            }
+        }
+    
         function clearAll() {
-            document.getElementById('input').value = '';
-            document.getElementById('output').value = '';
+            if (confirm('确定要清空所有内容吗？')) {
+                inputElement.value = '';
+                document.getElementById('output').value = '';
+                updateExampleVisibility(); // Update overlay visibility
+            }
         }
-
+    
         function recover() {
-            document.getElementById('input').value = storedData.input;
-            document.getElementById('output').value = storedData.output;
-        }
-
-        function copy() {
-            const outputTextArea = document.getElementById('output');
-            outputTextArea.select();
-            document.execCommand('copy');
+            if (historyStack.length > 0) {
+                inputElement.value = historyStack[0];
+                updateExampleVisibility(); // Update overlay visibility
+                alert('已恢复最近一次生成前的输入内容');
+            } else {
+                alert('历史记录为空，无法恢复');
+            }
         }
     </script>
-</head>
-<body>
-    <div class="container">
-        <div class="input-group">
-            <label for="input">请输入田间编号及对应单株数量：</label>
-            <textarea id="input" rows="5"></textarea>
-        </div>
-        <div class="input-group">
-            <label for="output">输出结果：</label>
-            <textarea id="output" rows="10" readonly></textarea>
-        </div>
-        <div id="button-group">
-            <button onclick="generate()"style="position: fixed; top: 160px;left: 600px; font-family: 黑体; font-weight:bold; font-size: 18px; padding: 10px 80px; border-radius: 5px; background-color: #000080; color: #ffffff; border: none;">生成编号</button>
-        <button onclick="copy()"style="position: fixed; top: 280px;left: 600px; font-family: 黑体; font-weight:bold; font-size: 18px; padding: 10px 80px; border-radius: 5px; background-color: #FF4500; color: #ffffff; border: none;">复制结果</button>
-        <button onclick="clearAll()"style="position: fixed; top: 400px;left: 600px; font-family: 黑体; font-weight:bold; font-size: 18px; padding: 10px 80px; border-radius: 5px; background-color: #8B0000; color: #ffffff; border: none;">清除内容</button>
-        <button onclick="recover()"style="position: fixed; top: 520px;left: 600px; font-family: 黑体; font-weight:bold; font-size: 18px; padding: 10px 80px; border-radius: 5px; background-color: #006400; color: #ffffff; border: none;">恢复内容</button>
-        </div>
-        <div id="sample-table">
-            <table>
-                         输入内容示例
-                <tr>
-                    <th>2024年编号</th>
-                    <th>数量</th>
-                </tr>
-                <tr><td>GY0001</td><td>3</td></tr>
-                <tr><td>GY0002</td><td>4</td></tr>
-                <tr><td>GY0003</td><td>5</td></tr>
-                <tr><td>GY0004</td><td>6</td></tr>
-                <tr><td>GY0005</td><td>3</td></tr>
-                <tr><td>GY0006</td><td>3</td></tr>
-                <tr><td>GY0007</td><td>5</td></tr>
-                <tr><td>GY0008</td><td>34</td></tr>
-            </table>
-        </div>
-    </div>
 </body>
 </html>
